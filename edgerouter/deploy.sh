@@ -11,5 +11,5 @@ target=$1
 
 src_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-scp -p -r $src_dir/../ifstat.sh scripts/* ${target}:/config/scripts
+scp -p -r $src_dir/../ifstat.py scripts/* ${target}:/config/scripts
 

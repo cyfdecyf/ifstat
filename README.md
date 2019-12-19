@@ -1,3 +1,15 @@
+# Interface Statistics
+
+Use netdata to collect interfaces statistics on remote linux system.
+
+# Usage
+
+1. Run `ifstat.py` on Linux system which we want to get interface statistics
+   - Modify port and interfaces according to your need
+2. Deploy netdata plugin and config to a running netdata server
+   1. Copy `netdata/ifstat.chart.py` to netdata `plugins.d/python.d.plugin` directory
+   2. Edit `netdata/ifstat.conf` and then copy to `etc/netdata/python.d` directory
+
 # The wrong approach (separating data generation and collection)
 
 The approach I first used turns out to be wrong. In this approach:
@@ -23,15 +35,8 @@ The proper way to do this is written in
 The core idea is to collect data at exactly constant rate.
 
 So it's better to let netdata plugin collection trigger data generation. That's
-why we moved to use SNMP for moniting EdgeRouter interfaces. As snmpd manual
-says, it collects data upon receiving request.
+why I moved to use Python socket server for moniting EdgeRouter interfaces.
+Not using SNMP is because update latency for snmpd.
 
-## Usage (for the wrong approach)
-
-This mainly serves as an example to write netdata plugin because of problems
-described above.
-
-1. Run `ifstat.sh` on Linux system which we want to get interface statistics
-2. Deploy netdata plugin and config to a running netdata server
-   1. Copy `netdata/ifstat.chart.py` to netdata `plugins.d/python.d.plugin` directory
-   2. Edit `netdata/ifstat.conf` and then copy to `etc/netdata/python.d` directory
+For reference, `obselect/ifstat.sh` is kept as an example of collecting data
+separately.

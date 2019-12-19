@@ -1,12 +1,13 @@
-import urllib3
 from datetime import datetime
 
-from bases.FrameworkServices.UrlService import UrlService
+from bases.FrameworkServices.SocketService import SocketService
 
-class Service(UrlService):
+class Service(SocketService):
     def __init__(self, configuration=None, name=None):
-        UrlService.__init__(self, configuration=configuration, name=name)
+        SocketService.__init__(self, configuration=configuration, name=name)
+        self._keep_alive = True
         self.alias = configuration.get('alias')
+        self.request = 'data'
 
     def create_charts(self, ifname):
         order = [
@@ -58,31 +59,31 @@ class Service(UrlService):
 
 
     def check(self):
-        # As suggested here https://github.com/netdata/netdata/issues/6221#issuecomment-499288477
-        # create chart for every interface in check.
-        # We can't use get_data inside check, so we have to use urllib3 by
-        # ourself.
-        http = urllib3.PoolManager(num_pools=1, cert_reqs='CERT_NONE')
-        r = http.request('GET', self.url)
-        #self.debug('check get raw {}'.format(r.data))
+        # Call parent class check first, so we can use _get_raw_data in check.
+        if not SocketService.check(self):
+            return False
 
-        raw = r.data.decode('utf-8')
-        lines = raw.splitlines()
-        ifs = [l.split(',')[0] for l in lines[1:]]
+        raw = self._get_raw_data()
 
-        self.debug('available interfaces {}'.format(ifs))
+        interfaces = [ l.split(',')[0] for l in raw.splitlines()[1:] if l.strip() != '' ]
+
+        self.debug('available interfaces {}'.format(interfaces))
         self.order = []
         self.definitions = {}
-        for i in ifs:
+        for i in interfaces:
             order, charts = self.create_charts(i)
             self.order.extend(order)
             self.definitions.update(charts)
 
-        return UrlService.check(self)
+        return True
+
+    @staticmethod
+    def _check_raw_data(data):
+        return len(data) >= 2 and data[-2:] == '\r\n'
+
 
     def _get_data(self):
-        self.debug("doing http request to '{0}' {1}".format(self.url, datetime.now()))
-        raw = self._get_raw_data(self.url)
+        raw = self._get_raw_data()
         self.debug("response on {1}\n{0}".format(raw, datetime.now()))
         if not raw:
             return None
