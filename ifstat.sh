@@ -6,14 +6,17 @@ dstfile=/tmp/ifstat.txt
 
 cd /sys/class/net
 
+# Manually specify interfaces we want to monitor.
+# This avoids unnecessary cost on weak CPU devices, also avoids showing charts
+# we are not interested with.
+ifs=(eth0 eth1 eth3 wg0)
+
 while true; do
     cont="ifs,rx_bytes,rx_packets,rx_dropped,rx_errors,tx_bytes,tx_packets,tx_dropped,tx_errors"
-    for i in *; do
-        if [[ $i == eth* || $i == pppoe* ]]; then
-            cd $i/statistics
-            cont="${cont}\n$i,$(<rx_bytes),$(<rx_packets),$(<rx_dropped),$(<rx_errors),$(<tx_bytes),$(<tx_packets),$(<tx_dropped),$(<tx_errors)"
-            cd ../..
-        fi
+    for i in "${ifs[@]}"; do
+        cd $i/statistics
+        cont+="\n$i,$(<rx_bytes),$(<rx_packets),$(<rx_dropped),$(<rx_errors),$(<tx_bytes),$(<tx_packets),$(<tx_dropped),$(<tx_errors)"
+        cd ../..
     done
     echo -e $cont > $dstfile.tmp
     mv -f $dstfile.tmp $dstfile
