@@ -1,6 +1,6 @@
 # Interface Statistics
 
-Use netdata to collect interfaces statistics on remote linux system.
+Use netdata to collect interfaces statistics from remote linux system.
 
 I write this tool because I want one second granularity interface statistics on
 EdgeRouter.
@@ -28,7 +28,7 @@ current. This is avoids getting data that's not aligned with collection
 frequency. We can also stop collection simply by removing socket server in
 config without touching on remote linux system.
 
-## Overhead on remote Linux system
+## Overhead on EdgeRouter
 
 By watching output of top:
 
@@ -36,6 +36,16 @@ By watching output of top:
 - For ER-12, collecting 8 interfaces takes 1% ~ 2% CPU usage
 
 Memory (`RES`) used is less than 4800 bytes.
+
+## Known issue
+
+When hardware offloading enabled, rx/tx bytes/packets statistics may be far
+below actual value. I guess because packets are forwarded directly by hardware
+and thus not counted on some interfaces.
+
+For me, the reduced 50us NAT+forwarding latency is more valuable than correct
+statistics. So I will keep offloading enabled and only disable it when needing
+correct statistics.
 
 ## Debugging netdata plugin
 
