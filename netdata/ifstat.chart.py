@@ -11,13 +11,13 @@ class Service(SocketService):
 
     def create_charts(self, ifname):
         order = [
-            f'{ifname}_bandwidth',
-            f'{ifname}_packets',
-            f'{ifname}_drops',
-            f'{ifname}_errors',
+            '{}_bandwidth'.format(ifname),
+            '{}_packets'.format(ifname),
+            '{}_drops'.format(ifname),
+            '{}_errors'.format(ifname),
         ]
         if self.alias and ifname in self.alias:
-            family = f'{ifname} ({self.alias[ifname]})'
+            family = '{} ({})'.format(ifname, self.alias[ifname])
         else:
             family = ifname
 
@@ -28,29 +28,29 @@ class Service(SocketService):
             order[0]: {
                 'options': [None, 'Bandwidth', 'kilobits/s', family, 'ifstat.bandwidth', 'area'],
                 'lines': [
-                    [f'{ifname}_rx_bytes', 'received', 'incremental', 8, 1000],
-                    [f'{ifname}_tx_bytes', 'sent', 'incremental', -8, 1000],
+                    ['{}_rx_bytes'.format(ifname), 'received', 'incremental', 8, 1000],
+                    ['{}_tx_bytes'.format(ifname), 'sent', 'incremental', -8, 1000],
                 ]
             },
             order[1]: {
                 'options': [None, 'Packets', 'packets/s', family, 'ifstat.packets', 'line'],
                 'lines': [
-                    [f'{ifname}_rx_packets', 'received', 'incremental', 1, 1],
-                    [f'{ifname}_tx_packets', 'sent', 'incremental', -1, 1],
+                    ['{}_rx_packets'.format(ifname), 'received', 'incremental', 1, 1],
+                    ['{}_tx_packets'.format(ifname), 'sent', 'incremental', -1, 1],
                 ]
             },
             order[2]: {
                 'options': [None, 'Drops', 'drops/s', family, 'ifstat.drops', 'line'],
                 'lines': [
-                    [f'{ifname}_rx_dropped', 'inbound', 'incremental', 1, 1],
-                    [f'{ifname}_tx_dropped', 'outbound', 'incremental', -1, 1],
+                    ['{}_rx_dropped'.format(ifname), 'inbound', 'incremental', 1, 1],
+                    ['{}_tx_dropped'.format(ifname), 'outbound', 'incremental', -1, 1],
                 ]
             },
             order[3]: {
                 'options': [None, 'Errors', 'errors', family, 'ifstat.errors', 'line'],
                 'lines': [
-                    [f'{ifname}_rx_errors', 'receive', 'incremental', 1, 1],
-                    [f'{ifname}_tx_errors', 'transmit', 'incremental', -1, 1],
+                    ['{}_rx_errors'.format(ifname), 'receive', 'incremental', 1, 1],
+                    ['{}_tx_errors'.format(ifname), 'transmit', 'incremental', -1, 1],
                 ]
             },
         }

@@ -42,8 +42,8 @@ class IfStat(object):
         interfaces: list of interfaces to collect statistics.
         stats: list of files to collect under /sys/class/net/ethX/statistics
         """
-        # HEADER, '\r', '' are for building up a list that can be joined
-        # directly to produce final output.
+        # 'H', 'E' are for building up a list that can be joined directly to
+        # produce final output.
         self.interfaces = ['H'] + interfaces + ['E']
         self.stats = stats
         if self.stats is None:
@@ -51,7 +51,7 @@ class IfStat(object):
                 'rx_bytes', 'rx_packets', 'rx_dropped', 'rx_errors',
                 'tx_bytes', 'tx_packets', 'tx_dropped', 'tx_errors'
             ]
-        # HACK: for collecting interface name.
+        # 'itf' is for collecting interface name.
         self.stats.insert(0, 'itf')
         self.header = ','.join(self.stats)
 
@@ -59,8 +59,6 @@ class IfStat(object):
         """Return a csv string with header line."""
         # To support multiple request and reply for a single socket, We use
         # '\r\n' to mean end of response.
-        # For performance reason, the collect method returns data containing
-        # '\r\n' so it can be directly sent as response.
         return '\n'.join((self.collect_one(i) for i in self.interfaces))
 
     @staticmethod
@@ -77,7 +75,6 @@ class IfStat(object):
             return self.header
         elif interface == 'E':
             return '\r\n'
-
         return ','.join((self.read_file(interface, st) for st in self.stats))
 
 
